@@ -14,4 +14,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TouristPlaces.Application\TouristPlaces.Application.csproj" />
+    <ProjectReference Include="..\TouristPlaces.DataAccess\TouristPlaces.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Account\" />
+    <Folder Include="Views\Place\" />
+  </ItemGroup>
+
 </Project>
