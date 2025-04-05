@@ -18,6 +18,6 @@ namespace TouristPlaces.DataAccess.Entities
 
         public Guid RegionId { get; set; }
 
-        public RegionEntity Region { get; set; } = null!;
+        public virtual RegionEntity Region { get; set; } = null!;
     }
 }
