@@ -12,16 +12,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TouristPlaces.Application\TouristPlaces.Application.csproj" />
     <ProjectReference Include="..\TouristPlaces.DataAccess\TouristPlaces.DataAccess.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\Account\" />
-    <Folder Include="Views\Place\" />
   </ItemGroup>
 
 </Project>
