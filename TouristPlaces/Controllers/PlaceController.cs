@@ -28,7 +28,7 @@ namespace TouristPlaces.Controllers
 
             ViewData["Regions"] = regions;
 
-            return View(place);
+            return PartialView(place);
         }
 
         [HttpGet]

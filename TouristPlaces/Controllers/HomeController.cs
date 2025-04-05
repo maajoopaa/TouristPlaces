@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using TouristPlaces.Application.Services;
+using TouristPlaces.DataAccess;
 using TouristPlaces.Models;
 
 namespace TouristPlaces.Controllers
@@ -22,7 +23,11 @@ namespace TouristPlaces.Controllers
         {
             var regions = await _regionService.GetList();
 
-            return View(regions);
+            ViewData["Regions"] = regions;  
+
+            var places = await _placeService.GetList();
+
+            return View(places);
         }
 
         public async Task<ActionResult> Search(string query)
@@ -34,9 +39,9 @@ namespace TouristPlaces.Controllers
 
         public async Task<ActionResult> Sort(string regionId)
         {
-            var places = await _placeService.Sort(regionId);
-            
-            return View(places);
+            var places = string.IsNullOrEmpty(regionId) ? await _placeService.GetList() : await _placeService.Sort(regionId);
+
+            return Json(places);
         }
 
 
