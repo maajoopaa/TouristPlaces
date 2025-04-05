@@ -1,0 +1,254 @@
+﻿@model TouristPlaces.DataAccess.Entities.PlaceEntity
+@{
+    var isAdmin = User.IsInRole("Admin");
+    var regions = ViewData["Regions"] as ICollection<TouristPlaces.DataAccess.Entities.RegionEntity>;
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Travel App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 900px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        .image-container {
+            height: 200px;
+            overflow: hidden;
+        }
+
+            .image-container img {
+                object-fit: cover;
+                width: 100%;
+                height: 100%;
+            }
+
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
+            min-width: 300px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+        }
+
+        .btn {
+            border-radius: 8px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+            .back-link:hover {
+                color: #0d6efd;
+            }
+    </style>
+</head>
+<body>
+    <div class="container py-3">
+        <a href="@Url.Action("Index", "Home")" class="back-link">
+            <i class="bi bi-arrow-left"></i> Назад к списку мест
+        </a>
+
+        <div id="notification" class="toast-notification"></div>
+
+        <div class="card mb-3">
+            @if (isAdmin)
+            {
+                <form id="editForm" class="p-3">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="image-container bg-light rounded mb-2">
+                                @if (Model.Image?.Length > 0)
+                                {
+                                    <img id="placeImage" src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Image)"
+                                         class="img-fluid" alt="@Model.Title">
+                                }
+                                else
+                                {
+                                    <div class="h-100 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-image text-muted fs-1"></i>
+                                    </div>
+                                }
+                            </div>
+                            <input type="file" id="imageInput" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="col-md-8">
+                            <input type="text" class="form-control mb-3" id="titleInput" value="@Model.Title" required>
+
+                            <select class="form-select mb-3" id="regionSelect" required>
+                                @foreach (var region in regions)
+                                {
+                                    <option value="@region.Id" selected="@(region.Id == Model.RegionId)">@region.Title</option>
+                                }
+                            </select>
+
+                            <textarea class="form-control mb-3" id="descriptionInput" rows="5" required>@Model.Description</textarea>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    <i class="bi bi-save"></i> Сохранить
+                                </button>
+                                <button type="button" id="deleteBtn" class="btn btn-danger">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="row p-3">
+                    <div class="col-md-4 mb-3">
+                        <div class="image-container bg-light rounded">
+                            @if (Model.Image?.Length > 0)
+                            {
+                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Image)"
+                                     class="img-fluid" alt="@Model.Title">
+                            }
+                            else
+                            {
+                                <div class="h-100 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-image text-muted fs-1"></i>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <h3 class="mb-3">@Model.Title</h3>
+                        <p class="text-muted mb-3">
+                            <i class="bi bi-geo-alt"></i> @Model.Region?.Title
+                        </p>
+                        <p>@Model.Description</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("imageInput")?.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById("placeImage").src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById("deleteBtn")?.addEventListener("click", async function () {
+            if (confirm('Вы уверены, что хотите удалить это место?')) {
+                const response = await fetch('@Url.Action("RemovePlace", "Place", new { id = Model.Id })', {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showNotification("Место успешно удалено!", true);
+                    setTimeout(() => window.location.href = '@Url.Action("Index", "Home")', 1500);
+                } else {
+                    showNotification("Ошибка при удалении места", false);
+                }
+            }
+        });
+
+        document.getElementById("editForm")?.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const imageInput = document.getElementById('imageInput');
+
+            const formData = {
+                title: document.getElementById('titleInput').value,
+                description: document.getElementById('descriptionInput').value,
+                regionId: document.getElementById('regionSelect').value,
+                image: ''
+            };
+
+            if (imageInput.files.length > 0) {
+                formData.image = await convertToBase64(imageInput.files[0]);
+            } else {
+                const currentImageSrc = document.getElementById("placeImage")?.src;
+
+                if (currentImageSrc?.startsWith("data:image")) {
+                    formData.image = currentImageSrc.split(',')[1];
+                }
+            }
+
+            try {
+                const response = await fetch('@Url.Action("UpdatePlace", "Place", new { id = Model.Id })', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showNotification('Изменения сохранены!', true);
+                } else {
+                    const error = await response.json();
+                    showNotification(error.message || 'Ошибка сохранения', false);
+                }
+            } catch (error) {
+                console.error(error);
+                showNotification('Ошибка соединения', false);
+            }
+        });
+
+        function convertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    const base64String = reader.result.split(',')[1];
+                    resolve(base64String);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        function showNotification(message, isSuccess) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = `
+                        <div class="alert alert-${isSuccess ? 'success' : 'danger'} alert-dismissible fade show" role="alert">
+                            <i class="bi ${isSuccess ? 'bi-check-circle' : 'bi-exclamation-triangle'} me-2"></i>
+                            ${message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(notification.querySelector('.alert'));
+                bsAlert.close();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
