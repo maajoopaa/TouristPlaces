@@ -1,0 +1,36 @@
+﻿@model ICollection<TouristPlaces.DataAccess.Entities.PlaceEntity>
+
+<div class="container py-4">
+    <h2 class="mb-4"><i class="bi bi-search"></i> Результаты поиска</h2>
+    <div id="placesGrid" class="row g-4">
+        @foreach (var place in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    @if (place.Image?.Length > 0)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(place.Image)"
+                             class="card-img-top" style="height: 200px; object-fit: cover;"
+                             alt="@place.Title">
+                    }
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center"
+                             style="height: 200px;">
+                            <i class="bi bi-image text-muted fs-1"></i>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@place.Title</h5>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-geo-alt"></i> @place.Region?.Title
+                        </p>
+                        <p class="card-text text-truncate">@place.Description</p>
+                        <a href="@Url.Action("GetPlace", "Place", new { id = place.Id })"
+                           class="btn btn-outline-primary stretched-link">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
