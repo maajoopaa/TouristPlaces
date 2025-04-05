@@ -27,11 +27,10 @@ namespace TouristPlaces.Application.Services
             return placeEntity;
         }
 
-        public async Task<List<PlaceEntity>> GetList(Guid regionId)
+        public async Task<List<PlaceEntity>> GetList()
         {
             var placeEntities = await _context.Places
                 .AsNoTracking()
-                .Where(p => p.RegionId == regionId)
                 .ToListAsync();
 
             return placeEntities;

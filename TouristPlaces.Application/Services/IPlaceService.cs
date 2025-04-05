@@ -6,7 +6,7 @@ namespace TouristPlaces.Application.Services
     {
         Task<PlaceEntity> Create(string title, string description, byte[] image, Guid regionId);
         Task<PlaceEntity?> Get(Guid id);
-        Task<List<PlaceEntity>> GetList(Guid regionId);
+        Task<List<PlaceEntity>> GetList();
         Task<bool> Remove(Guid id);
         Task<List<PlaceEntity>> Search(string query);
         Task<PlaceEntity?> Update(Guid id, string title, string description, byte[] image, Guid regionId);
